@@ -7,3 +7,13 @@
 
 ## mongo query filters
 [stackoverflow.com](https://stackoverflow.com/questions/3305561/how-to-query-mongodb-with-like)
+
+
+## git cli commands
+- `git checkout -b MyBranch`
+- `git add .`
+- `git commit -m ""`
+- `git push origin MyBranch"`
+- `git checkout main`
+- `git pull origin main`
+- `git branch -d MyBranch`

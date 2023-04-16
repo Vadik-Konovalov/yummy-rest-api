@@ -6,7 +6,7 @@ const { asyncWrapper } = require('../helpers/asyncWrapper')
 // const { authMiddleware } =  require('../middlewares/authMiddleware')
 // const { upload } = require('../middlewares/uploadMiddleware')
 
-// ingredients
+
 // ingredients/list
 // ingredients/shopping-list
 

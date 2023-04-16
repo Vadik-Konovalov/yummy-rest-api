@@ -1,4 +1,5 @@
 const { getAllRecipes, getRecipes } = require('../services/recipesServices');
+const { getAllIngredients } = require('../services/ingredientsServices');
 
 // const { contactValidSchema } = require('../service/schemas/contactValidSchema');
 // const { ValidationError } = require('../helpers/error');
@@ -18,7 +19,7 @@ const get = async (req, res) => {
 };
 
 const searchByTitle = async (req, res) => {
-  const { title, ingredients, page = 1, limit = 10 } = req.query;
+  const { title, page = 1, limit = 10 } = req.query;
   const skip = (page - 1) * limit;
   const condition = { title: { $regex: title, $options: 'i' } };
   const pagination = { skip, limit };
@@ -37,7 +38,50 @@ const searchByTitle = async (req, res) => {
   });
 };
 
+const searchByIngredients = async (req, res) => {
+  const { ttl, page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  const condition = { ttl: { $regex: ttl, $options: 'i' } };
+  const pagination = { skip, limit };
+
+  console.log(condition, pagination);
+  const allIngredients = await getAllIngredients(condition, pagination);
+
+  const exampleEngredients = [
+    {
+      _id: '640c2dd963a319ea671e3746',
+      ttl: 'Potatoes',
+    },
+    {
+      _id: '640c2dd963a319ea671e3768',
+      ttl: 'Small Potatoes',
+    },
+  ];
+  console.log(allIngredients);
+
+  const conditionSearch = {ingredients: {$elemMatch: {id: allIngredients[0]._id}}}
+  console.log(conditionSearch);
+
+  const recipesByIngredients = await getRecipes(conditionSearch, pagination);
+
+
+
+
+
+
+  res.json({
+    status: 'Success',
+    code: 200,
+    data: {
+      // currentPage: page,
+      countRecipes: recipesByIngredients.length,
+      recipes: recipesByIngredients,
+    },
+  });
+};
+
 module.exports = {
   get,
   searchByTitle,
+  searchByIngredients,
 };

@@ -1,5 +1,6 @@
 const { Recipes } = require('./schemas/recipes');
 
+// test func, remove
 const getAllRecipes = async (condition, pagination) => {
   return Recipes.find(condition, '', pagination);
 };
