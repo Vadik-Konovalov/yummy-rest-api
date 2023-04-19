@@ -1,3 +1,4 @@
+const { HttpError } = require('../helpers/HttpError');
 const { WrongParametersError } = require('../helpers/error');
 const { Ingredients } = require('./schemas/ingredients');
 const { Recipes } = require('./schemas/recipes');
@@ -7,19 +8,22 @@ const getAllIngredients = async () => {
   return Ingredients.find();
 };
 
-const getAllRecipesByIngredient = async (ingredient, userId) => {
-  // const ingredient = await Ingredients.findOne({ ttl: `${ingredient}` })
-  // if (!ingredient) {
-  //       throw new WrongParametersError(
-  //         `Failure! There is no ingredient found with name: ${ingredient}`
-  //       );
-  //     }
-  // const baseRecipesByIngredients = await Recipes.find({ ingredients: {$elemMach: { id: ObjectId(`${ingredient._id}`) }}})
-  // // const userRecipecByIngredients = await User.find({$and: [{ ingredients: {$elemMach: { id: ObjectId(`${ingredient._id}`)}}}, {userId: `${userId}`}]});
-  // const globalRecipes = [
-  // // ...userRecipecByIngredients,
-  // ...baseRecipesByIngredients]
-  // return globalRecipes
+const getAllRecipesByIngredient = async (request) => {
+  console.log(request.ingredient);
+  const searchedIngredient = await Ingredients.findOne({ ttl: `${ request.ingredient}` })
+  
+  if (!searchedIngredient) {
+        throw HttpError(404,
+          `Failure! There is no ingredient found with name: ${request.ingredient}`
+        );
+      }
+  const baseRecipesByIngredients = await Recipes.find({ ingredients: { $elemMatch: {id: searchedIngredient._id} } })
+
+  // const userRecipecByIngredients = await User.find({$and: [{ ingredients: {$elemMatch: { id: ObjectId(`${ingredient._id}`)}}}, {userId: `${userId}`}]});
+  const globalRecipes = [
+  // ...userRecipecByIngredients,
+  ...baseRecipesByIngredients]
+  return globalRecipes
 };
 
 module.exports = {

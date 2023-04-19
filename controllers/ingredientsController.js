@@ -21,14 +21,8 @@ const get = async (req, res) => {
 };
 
 const getAllRecipesByIngredientController = async (req, res) => {
-  const { _id } = req.user;
-  const results = await getAllRecipesByIngredient(req.body, _id);
-
-  // const { contactValidSchema } = require('../service/schemas/contactValidSchema');
-  // const { ValidationError } = require('../helpers/error');
-
-  const get = async (req, res) => {
-    const results = await getAllIngredients();
+  console.log(1);
+  const results = await getAllRecipesByIngredient(req.body);
 
     res.json({
       status: 'Success',
@@ -38,7 +32,7 @@ const getAllRecipesByIngredientController = async (req, res) => {
       },
     });
   };
-};
+
 
 module.exports = {
   get,
