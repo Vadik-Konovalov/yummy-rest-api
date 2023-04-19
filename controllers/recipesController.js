@@ -2,18 +2,15 @@ const {
   getAllRecipes,
   getRecipes,
   getRecipesById,
-  getPopularRecipes,
   getCategory,
   getAllCategoryWithFourRecipes,
   addToFavorite,
   removeFromFavorite,
   getAllFavorite,
-
-} = require("../services/recipesServices");
-const { Recipes } = require("../services/schemas/recipes");
-const { getAllIngredients } = require("../services/ingredientsServices");
-const { HttpError } = require("../helpers/HttpError");
-
+} = require('../services/recipesServices');
+const { Recipes } = require('../services/schemas/recipes');
+const { getAllIngredients } = require('../services/ingredientsServices');
+const { HttpError } = require('../helpers/HttpError');
 
 const resultCategory = [
   'Beef',
@@ -104,10 +101,10 @@ const getCategoryListController = (req, res) => {
     throw new HttpError(404, `Categories ${category} not found`);
   }
   res.json({
-    status: "success",
+    status: 'success',
     code: 200,
     data: {
-      resultCategory
+      resultCategory,
     },
   });
 };
@@ -148,16 +145,32 @@ const getCategoryController = async (req, res, next) => {
 };
 
 const popularRecipesController = async (req, res) => {
-  const result = await getPopularRecipes({
-    $expr: { $gte: [{ $size: '$favorite' }, 1] },
-  });
+  const recipesByPopular = await Recipes.aggregate([
+    {
+      $project: {
+        title: 1,
+        description: 1,
+        preview: 1,
+        arrayLength: { $size: '$favorite' },
+        numberOfFavorites: {
+          $cond: {
+            if: { $isArray: '$favorites' },
+            then: { $size: '$favorites' },
+            else: 'NA',
+          },
+        },
+      },
+    },
+    { $sort: { arrayLength: -1 } },
+    { $limit: 4 },
+  ]);
 
   res.json({
     status: 'Success',
     code: 200,
     data: {
-      countRecipes: result.length,
-      result,
+      countRecipes: recipesByPopular.length,
+      recipesByPopular,
     },
   });
 };
