@@ -4,7 +4,6 @@ const {
 } = require('../services/ingredientsServices');
 
 // const { contactValidSchema } = require('../service/schemas/contactValidSchema');
-// const { ValidationError } = require('../helpers/error');
 
 const get = async (req, res) => {
   const condition = {};
