@@ -1,7 +1,10 @@
 const { OwnRecipes } = require("./schemas/ownRecipes");
 
+const OwnerRecipes = OwnRecipes 
 const getAllOwnRecipes = async (owner) => {
+  console.log(OwnRecipes);
   return OwnRecipes.find(owner);
+  
 };
 
 const getOwnRecipesById = (id) => {
@@ -28,4 +31,5 @@ module.exports = {
   deleteRecipe,
   addRecipe,
   updateRecipeStatus,
+  OwnerRecipes
 };

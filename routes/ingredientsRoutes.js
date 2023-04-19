@@ -15,6 +15,7 @@ const {
 
 
 router.get('/', asyncWrapper(get));
+// get all recipes by ingredient
 router.get('/global', ingredientValidation, asyncWrapper(getAllRecipesByIngredientController))
 
 router.get('/list', asyncWrapper(get));

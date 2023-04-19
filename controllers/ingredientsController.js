@@ -1,7 +1,8 @@
 const {
   getAllIngredients,
-  getAllRecipesByIngredient,
 } = require('../services/ingredientsServices');
+const { getAllRecipesByIngredient } = require('../services/recipeByIngredientServices');
+
 
 // const { contactValidSchema } = require('../service/schemas/contactValidSchema');
 
@@ -20,8 +21,8 @@ const get = async (req, res) => {
 };
 
 const getAllRecipesByIngredientController = async (req, res) => {
-  console.log(1);
-  const results = await getAllRecipesByIngredient(req.body);
+  const {_id} = req.user;
+  const results = await getAllRecipesByIngredient(req.body, _id);
 
     res.json({
       status: 'Success',

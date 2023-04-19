@@ -1,6 +1,5 @@
 const { HttpError } = require('../helpers/HttpError');
 const { Recipes } = require('./schemas/recipes');
-
 const getAllRecipes = async (condition, pagination) => {
   return Recipes.find(condition, '', pagination);
 };

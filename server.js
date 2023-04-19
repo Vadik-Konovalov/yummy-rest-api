@@ -20,7 +20,9 @@ app.use(express.static('public'));
 
 app.use('/user', userRouter);
 app.use(protectPath);
+
 app.use('/recipes', recipesRouter);
+app.use('/own-recipes', ownRecipesRouter)
 app.use('/ingredients', ingredientsRouter);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
