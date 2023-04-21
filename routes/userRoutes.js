@@ -1,24 +1,37 @@
-const express = require("express");
+const express = require('express');
+
 const router = express.Router();
-const { register} = require('../controllers/userController');
-const { asyncWrapper } = require('../helpers/asyncWrapper')
-// const { authMiddleware } =  require('../middlewares/authMiddleware')
-// const { upload } = require('../middlewares/uploadMiddleware')
+const {
+  signup,
+  login,
+  logout,
+  getUser,
+  updateUserAvatar,
+  updateUser,
+  verify,
+  reVerify,
+} = require('../controllers/userController');
+const { subscribe } = require('../controllers/subscribeController');
+const { asyncWrapper } = require('../helpers/asyncWrapper');
+const { protectPath } = require('../middlewares/authMiddleware');
+const { uploadCloud } = require('../middlewares/uploadMiddleware');
+const { deleteItemShoppingList } = require('../controllers/shoppingListController');
 
-// user/subscribe
+router.post('/subscribe', asyncWrapper(subscribe));
 
-router.post("/register", asyncWrapper(signup));
-router.post("/login", asyncWrapper(login));
-router.get("/verify/:verificationToken", asyncWrapper(verify));
-router.post("/verify", asyncWrapper(reVerify));
+router.post('/register', asyncWrapper(signup));
+router.post('/login', asyncWrapper(login));
+router.get('/verify/:verificationToken', asyncWrapper(verify));
+router.post('/verify', asyncWrapper(reVerify));
 router.use(protectPath);
-router.post("/logout", asyncWrapper(logout));
-router.get("/current", asyncWrapper(getUser));
-router.post("/update", asyncWrapper(updateUser));
+router.post('/logout', asyncWrapper(logout));
+router.get('/current', asyncWrapper(getUser));
+router.patch('/update', asyncWrapper(updateUser));
 router.post(
-	"/avatars",
-	uploadCloud.single("avatar"),
-	asyncWrapper(updateUserAvatar)
+  '/avatars',
+  uploadCloud.single('avatar'),
+  asyncWrapper(updateUserAvatar)
 );
+router.post('/subscribe', asyncWrapper(subscribe));
 
-router.post('/register', asyncWrapper(register));
+module.exports = { userRouter: router };

@@ -6,7 +6,6 @@ const recipesSchema = new Schema({
   title: {
     type: String,
     trim: true,
-    // required: [true, 'Set password for user'],
   },
   category: {
     type: String,
@@ -46,6 +45,10 @@ const recipesSchema = new Schema({
   },
   ingredients: {
     type: Array,
+  },
+  favorite: {
+    type: Array,
+    default: [],
   },
 },
 {versionKey: false, timestamps: true}
