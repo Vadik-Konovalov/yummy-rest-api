@@ -8,7 +8,7 @@ const {
 	getUserById,
 } = require("../services/userServices");
 const {userValidation} = require("../services/schemas/userValidation");
-const {sendEmailToken} = require("../services/emailService");
+// const {sendEmailToken} = require("../services/emailService");
 
 // Sign jwt helper function
 const signToken = id =>
@@ -45,7 +45,7 @@ const signup = async (req, res) => {
 	newUser.token = token;
 	newUser.save();
 
-	sendEmailToken(newUser.email, newUser.verificationToken);
+	// sendEmailToken(newUser.email, newUser.verificationToken);
 
 	res.status(201).json({
 		user: {
@@ -77,16 +77,20 @@ const login = async (req, res) => {
 	if (!passwordIsValid)
 		return res.status(401).json({message: "Email or password is wrong"});
 
-	if (!user.verify)
-		return res
-			.status(400)
-			.json({message: "Verification has not been passed"});
+	// if (!user.verify)
+	// 	return res
+	// 		.status(400)
+	// 		.json({message: "Verification has not been passed"});
 
 	const token = signToken(user.id);
 	user.token = token;
 	user.save();
 	res.json({
-		user: {email: user.email, subscription: user.subscription},
+		user: {
+			email: user.email,
+			name: user.name,
+			avatarURL: user.avatarURL,
+		},
 		token,
 	});
 };
@@ -195,7 +199,7 @@ const reVerify = async (req, res) => {
 		user.verificationToken = v4();
 		user.save();
 	}
-	sendEmailToken(email, user.verificationToken);
+	// sendEmailToken(email, user.verificationToken);
 
 	res.json({
 		message: "Verification link resent",
