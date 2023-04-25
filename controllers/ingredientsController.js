@@ -1,12 +1,34 @@
-const { getAllIngredients, getAllRecipesByIngredient } = require("../services/ingredientsServices");
+const {
+  getAllIngredients,
 
-// const { contactValidSchema } = require('../service/schemas/contactValidSchema');
-// const { ValidationError } = require('../helpers/error');
+} = require("../services/ingredientsServices");
+const { getAllRecipesByIngredient } = require("../services/recipeByIngredientService");
 
 const get = async (req, res) => {
-  const condition = {};
+  const { arrayId } = req.body
+  
+  // console.log(req.body)
+
+  console.log(arrayId)
+  const condition = { _id: { $in: arrayId } } ;
 
   const results = await getAllIngredients(condition);
+
+  res.json({
+    status: "Success",
+    code: 200,
+    data: {
+      totalIngretients: results.length,
+      ingretients: results,
+    },
+  });
+};
+
+const getAllRecipesByIngredientController = async (req, res) => {
+  const { query } = req
+
+  const { _id } = req.user;
+  const results = await getAllRecipesByIngredient(query.ingredient, _id);
 
   res.json({
     status: "Success",
@@ -17,28 +39,7 @@ const get = async (req, res) => {
   });
 };
 
-const getAllRecipesByIngredientController =  async (req, res) => {
-  const {_id} = req.user
-  const results = await getAllRecipesByIngredient(req.body, _id);
-  
-
-  // const { contactValidSchema } = require('../service/schemas/contactValidSchema');
-  // const { ValidationError } = require('../helpers/error');
-  
-  const get = async (req, res) => {
-
-    const results = await getAllIngredients();
-  
-    res.json({
-      status: 'Success',
-      code: 200,
-      data: {
-        ingretients: results,
-      },
-    });
-  };
-  
-  module.exports = {
-    get,getAllRecipesByIngredientController
-  };
-  
+module.exports = {
+  get,
+  getAllRecipesByIngredientController,
+};
