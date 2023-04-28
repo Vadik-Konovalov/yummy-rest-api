@@ -1,39 +1,55 @@
-const {User} = require('../services/schemas/users')
-const {findUser, updateUser} = require('../services/userServices')
-const sendEmail = require('../helpers/sendEmail')
-const HttpError = require('../helpers/HttpError')
-
+const { createSubscription, findIsUserSubscribe } = require('../services/subsctiptionServices');
+const {
+  getUserByFild,
+  getUserById,
+  updateUser,
+} = require('../services/userServices');
+const sendEmail = require('../helpers/sendEmail');
+const { HttpError } = require('../helpers/HttpError');
 
 const subscribe = async (req, res) => {
-        const {email} = req.body
+  const { email } = req.body;
+  const user = await getUserByFild({ email });
 
-        const user = await findUser({email})
-        const id = user._id
-        
-        if(email != user.email) {
-            throw HttpError(404, `Not found user with ${email}`)
-        }
+  const isEmail = await findIsUserSubscribe({email})
+  if(isEmail) {
+    throw HttpError(400, 'User is already subscribed');
+  }
+  if (!user) {
+    throw HttpError(400, `Not found user with ${email}`);
+  }
+  // find current user
+  const id = req.user._id;
+  const currentUser = await getUserById(id);
 
-        const sub = {
-            subscription: true,
-        }
-        
-        const data = await updateUser( id, sub)
-        if(!data) {
-            throw HttpError(400, "Not found user")
-        }
-        const letter = {
-            to: email,
-            subject: "You have subscribed successful",
-            html: `<p>You are subscribe successfully on Yummy's news.</p>`
-        }
-        console.log(letter)
-        await sendEmail(letter)
+  //compare email in form with email of current user
+  if (email != currentUser.email) {
+    throw HttpError(404, `It' s not your ${email}`);
+  }
 
-        res.status(200).json({
-            message: "Subscription letter send"
-        })
-        
-}
+  // update subscription of current user in users collection
+  const sub = {
+    subscription: true,
+  };
+  await updateUser(id, sub);
 
-module.exports = subscribe
+  // create subscription with current user in subscriptions collection
+  await createSubscription({ email, id });
+
+  // send letter for current user with subscription notification
+  const letter = {
+    to: email,
+    subject: 'Yummy team',
+    html: `<h2>Wellcome, ${user.name}!</h2>
+            <p> Thanks for subscribing to our newsletter!</p>
+            <p>With best regards, your Yummy team.</p>`,
+  };
+
+  await sendEmail(letter);
+
+  res.status(200).json({
+    message: 'Subscription letter send',
+  });
+};
+
+module.exports = { subscribe };
