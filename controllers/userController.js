@@ -6,9 +6,10 @@ const {
 	createUser,
 	getUserByFild,
 	getUserById,
+	getUserUpdate,
 } = require("../services/userServices");
 const {userValidation} = require("../services/schemas/userValidation");
-const {sendEmailToken} = require("../services/emailService");
+// const {sendEmailToken} = require("../services/emailService");
 
 // Sign jwt helper function
 const signToken = id =>
@@ -45,15 +46,16 @@ const signup = async (req, res) => {
 	newUser.token = token;
 	newUser.save();
 
-	sendEmailToken(newUser.email, newUser.verificationToken);
+	// sendEmailToken(newUser.email, newUser.verificationToken);
 
 	res.status(201).json({
 		user: {
-			id: newUser._id,
 			email: newUser.email,
 			name: newUser.name,
 			avatarURL: newUser.avatarURL,
+			registeredAt: newUser.createdAt,
 		},
+		token,
 	});
 };
 
@@ -77,16 +79,21 @@ const login = async (req, res) => {
 	if (!passwordIsValid)
 		return res.status(401).json({message: "Email or password is wrong"});
 
-	if (!user.verify)
-		return res
-			.status(400)
-			.json({message: "Verification has not been passed"});
+	// if (!user.verify)
+	// 	return res
+	// 		.status(400)
+	// 		.json({message: "Verification has not been passed"});
 
 	const token = signToken(user.id);
 	user.token = token;
 	user.save();
 	res.json({
-		user: {email: user.email, subscription: user.subscription},
+		user: {
+			email: user.email,
+			name: user.name,
+			avatarURL: user.avatarURL,
+			registeredAt: user.createdAt,
+		},
 		token,
 	});
 };
@@ -107,7 +114,7 @@ const logout = async (req, res) => {
 	await user.save();
 
 	res.status(204).json({
-		message: "No content",
+		message: "User logout successfully",
 	});
 };
 
@@ -137,12 +144,13 @@ const getUser = async (req, res) => {
  * @description Avatar upload controller
  */
 const updateUserAvatar = async (req, res) => {
-	const {user: _id} = req;
-	let user = await getUserById(_id);
+	if (!req.file) return res.status(400).json({message: "No file uploaded"});
+	let user = await getUserById(req.user._id);
+	if (!user) return res.status(404).json({message: "User not found"});
 	user.avatarURL = req.file.path;
 	await user.save();
 	res.status(201).json({
-		message: "Avatar updated",
+		avatarURL: user.avatarURL,
 	});
 };
 /**
@@ -151,16 +159,18 @@ const updateUserAvatar = async (req, res) => {
  *@description Update subscription controller
  */
 const updateUser = async (req, res) => {
+	if (!req.body)
+		return res.status(400).json({message: "missing fields for update"});
 	const {error, value} = userValidation(req.body);
 	if (error) return res.status(400).json({message: error.message});
-
-	const {user: _id} = req;
-	let user = await getUserById(_id);
-	user = {...user, ...value};
-	await user.save();
-
+	await getUserUpdate(req.user._id, value);
+	const user2 = await getUserById(req.user._id);
+	if (!user2) return res.status(404).json({message: "User not found"});
 	res.status(202).json({
-		message: "User updated",
+		email: user2.email,
+		name: user2.name,
+		avatarURL: user2.avatarURL,
+		registeredAt: user2.createdAt,
 	});
 };
 
@@ -195,7 +205,7 @@ const reVerify = async (req, res) => {
 		user.verificationToken = v4();
 		user.save();
 	}
-	sendEmailToken(email, user.verificationToken);
+	// sendEmailToken(email, user.verificationToken);
 
 	res.json({
 		message: "Verification link resent",
